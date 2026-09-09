@@ -7,6 +7,7 @@ import com.gamebasic.game.entity.Game;
 import com.gamebasic.game.entity.GameStatus;
 import com.gamebasic.game.repository.GameRepository;
 import com.gamebasic.runcard.dto.CardResponse;
+import com.gamebasic.runcard.dto.DeckCount;
 import com.gamebasic.runcard.dto.RunCardRequest;
 import com.gamebasic.runcard.entity.RunCard;
 import com.gamebasic.runcard.repository.RunCardRepository;
@@ -17,8 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -97,20 +101,35 @@ public class GameService {
     // TODO (Lv 7): 게임 목록 조회. 주석을 풀고 구현하세요.
      @Transactional(readOnly = true)
      public List<GameSummaryResponse> getGames() {
-        List<Game> games = gameRepository.findAllByOrderByIdDesc();
-        return games.stream()
-                .map(game -> new GameSummaryResponse(
-                        game.getId(),
-                        game.getPlayerName(),
-                        game.getCurrentFloor(),
-                        game.getCurrentHp(),
-                        game.getPhase(),
-                        game.getStatus(),
-                        -1,
-                        "",
-                        ""
-                ))
-                .toList();
+
+         List<Game> games = gameRepository.findAllByOrderByIdDesc();
+         List<DeckCount> deckCounts = runCardRepository.countByGames(games);
+
+         Map<Long, Integer> gameIdAnddeckCount = new HashMap<>();
+         for(DeckCount deckCount : deckCounts){
+             gameIdAnddeckCount.put(deckCount.getGameId(), (int)deckCount.getCount());
+         }
+
+         List<GameSummaryResponse> responses = new ArrayList<>();
+         for(int i = 0; i < games.size(); i++){
+             Game game = games.get(i);
+
+             responses.add(
+                     new GameSummaryResponse(
+                             game.getId(),
+                             game.getPlayerName(),
+                             game.getCurrentFloor(),
+                             game.getCurrentHp(),
+                             game.getPhase(),
+                             game.getStatus(),
+                             gameIdAnddeckCount.get(game.getId()),
+                             game.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
+                             game.getModifiedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+                     )
+             );
+         }
+
+         return responses;
      }
 
     // TODO (Lv 7): 게임 상세 조회. 주석을 풀고 구현하세요.

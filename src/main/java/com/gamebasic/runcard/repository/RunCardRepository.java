@@ -1,5 +1,6 @@
 package com.gamebasic.runcard.repository;
 
+import com.gamebasic.runcard.dto.DeckCount;
 import com.gamebasic.game.entity.Game;
 import com.gamebasic.runcard.dto.CardResponse;
 import com.gamebasic.runcard.entity.RunCard;
@@ -19,5 +20,6 @@ public interface RunCardRepository extends JpaRepository<RunCard, Long> {
     List<CardResponse> findAllByGameIdOrderByIdAsc(Long gameId);
 
     // TODO (Lv 11): @Query 작성
-    // List<DeckCount> countByGames(List<Game> games);
+    @Query("select new com.gamebasic.runcard.dto.DeckCount(g.id, count(r)) from Game g left join RunCard r on r.game = g where g in :games group by g.id")
+    List<DeckCount> countByGames(List<Game> games);
 }
