@@ -1,5 +1,6 @@
 package com.gamebasic.game.service;
 
+import com.gamebasic.common.exception.GameFinishedException;
 import com.gamebasic.common.exception.GameNotFoundException;
 import com.gamebasic.game.dto.*;
 import com.gamebasic.game.entity.Game;
@@ -56,7 +57,7 @@ public class GameService {
 
     private Game findGame(Long gameId) {
         return gameRepository.findById(gameId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
     @Transactional
@@ -65,7 +66,7 @@ public class GameService {
 
         // TODO (Lv 9): 끝난 게임 덮어쓰기 막기
         if(game.isFinished()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new GameFinishedException(gameId);
         }
 
         game.updateProgress(
