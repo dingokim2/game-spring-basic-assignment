@@ -3,6 +3,7 @@ package com.gamebasic.game.service;
 import com.gamebasic.common.exception.GameNotFoundException;
 import com.gamebasic.game.dto.*;
 import com.gamebasic.game.entity.Game;
+import com.gamebasic.game.entity.GameStatus;
 import com.gamebasic.game.repository.GameRepository;
 import com.gamebasic.runcard.dto.CardResponse;
 import com.gamebasic.runcard.dto.RunCardRequest;
@@ -61,6 +62,12 @@ public class GameService {
     @Transactional
     public GameDetailResponse updateProgress(Long gameId, ProgressRequest request) {
         Game game = findGame(gameId);
+
+        // TODO (Lv 9): 끝난 게임 덮어쓰기 막기
+        if(game.isFinished()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+
         game.updateProgress(
             request.getCurrentHp(),
             request.getCurrentFloor(),
