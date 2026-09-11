@@ -29,6 +29,8 @@ public class RankingService {
 
         for(RankingSource.Record record : source.getRecords()){
 
+            totalRecords++;
+
             // 순위 대상 확인
             if(!record.getRun().getStatus().equals("CLEARED")){
                 continue;
@@ -36,8 +38,6 @@ public class RankingService {
             if(record.getRun().getClearedFloor() != 10){
                 continue;
             }
-
-            totalRecords++;
 
             // 정상 기록 확인
             if(!isValidRecord(record)) {
@@ -50,13 +50,13 @@ public class RankingService {
             // 이미 기록이 있는 플레이어의 경우 이전 기록과 비교
             if(map.containsKey(current.getPlayerId())){
                 RecordSummary previous = map.get(current.getPlayerId());
-                // 현재 기록이 기존 기록보다 우위에 있는 경우 기존 기록 제거
+                // 기존 기록이 현재 기록보다 좋은 경우 continue
                 if(RecordSummary.getComparator().compare(previous, current) < 0) {
-                    map.remove(previous.getPlayerId());
+                    continue;
                 }
             }
 
-            // 현재 기록을 추가
+            // 현재 기록을 추가 (기존 기록이 있으면 덮어씌움)
             map.put(current.getPlayerId(), current);
         }
 
