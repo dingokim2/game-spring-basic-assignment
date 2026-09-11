@@ -1,0 +1,22 @@
+package com.gamebasic.common.ranking.controller;
+
+import com.gamebasic.common.ranking.client.RankingClient;
+import com.gamebasic.common.ranking.dto.RankingResponse;
+import com.gamebasic.common.ranking.dto.RankingSource;
+import com.gamebasic.common.ranking.service.RankingService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class RankingController {
+
+    private final RankingService rankingService;
+
+    @GetMapping("/rankings")
+    public ResponseEntity<RankingResponse> getRankings() {
+        return ResponseEntity.ok(rankingService.getRankings());
+    }
+}
